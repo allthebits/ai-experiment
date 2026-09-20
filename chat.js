@@ -9,7 +9,6 @@ class ChatController {
     }
 
     async fetchModelsData() {
-        this.disableSendButton();
         try {
             const response = await fetch(this.modelEndpoint);
             if (!response.ok) {
@@ -32,11 +31,13 @@ class ChatController {
     disableSendButton() {
         const sendButton = document.getElementById("send-button");
         sendButton.disabled = true;
+        sendButton.textContent = "Sending...";
     }
 
     enableSendButton() {
         const sendButton = document.getElementById("send-button");
         sendButton.disabled = false;
+        sendButton.textContent = "Send";
     }
 
     async send() {
@@ -78,7 +79,6 @@ class ChatController {
 
             const data = await response.json();
             this.handleResponse(data);
-            this.enableSendButton();
         } catch (err) {
             document.getElementById("response-props").value = `Error: ${err.message || err.toString()}`;
             this.handleResponse(null, err);
@@ -91,8 +91,8 @@ class ChatController {
         const responsePropsTextarea = document.getElementById("response-props");
 
         if (data) {
-            this.handleResponseProperties(data);
             this.handleResponseMessage(data, outMarkdownContainer);
+            this.handleResponseProperties(data);
         } else {
             outMarkdownContainer.innerHTML = `<p style="color: red;">Error: ${error.toString()}</p>`;
             responsePropsTextarea.value = ""; // Clear any previous props content on error

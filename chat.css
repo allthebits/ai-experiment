@@ -1,0 +1,156 @@
+/* ================================
+   GLOBAL LAYOUT — FULLSCREEN APP
+   ================================ */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+
+/* ================================
+   TABS BAR
+   ================================ */
+
+.tabs {
+    display: flex;
+    width: 100%;
+    background: #f9f9f9;
+    border-bottom: 2px solid #ccc;
+    flex-shrink: 0;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom-color 0.3s ease;
+}
+
+.tab.active {
+    border-bottom-color: #007BFF;
+}
+
+
+/* ================================
+   TAB CONTENTS — FILL REMAINING SPACE
+   ================================ */
+
+.tab-contents {
+    flex-grow: 1;
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+}
+
+.tab-content {
+    flex-grow: 1;
+    display: none;
+    overflow: hidden;        /* prevent collapse */
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+
+    /* KEY FIX: make children stack vertically */
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+
+/* ================================
+   ROW 1 — TWO TEXTAREAS (75% / 25%)
+   ================================ */
+
+#input-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+}
+
+/* msg takes exactly 60% */
+#msg {
+    flex: 0 0 60%;
+    resize: none;
+}
+
+/* response-props automatically fills remaining space */
+#response-props {
+    flex: 1;
+    resize: none;
+}
+
+/* ================================
+   ROW 2 — MODEL + SELECT + BUTTON
+   ================================ */
+
+#button-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+
+/* ================================
+   ROW 3 — MARKDOWN OUTPUT (EXPANDS)
+   ================================ */
+
+#output-container {
+    flex-grow: 1;            /* <-- THIS MAKES IT EXPAND */
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    width: 100%;
+    overflow: hidden;        /* prevents overflow issues */
+}
+
+#out-markdown {
+    flex-grow: 1;            /* fills the container */
+    border: 1px solid #ccc;
+    padding: 15px;
+    background: #fafafa;
+    overflow-y: auto;        /* scrolls internally */
+}
+
+
+/* ================================
+   OPTIONAL — MAKE TEXTAREAS LOOK NICE
+   ================================ */
+
+textarea.form-control {
+    height: 100%;
+}
+
+
+/* ================================
+   RESPONSIVE (OPTIONAL)
+   ================================ */
+
+@media (max-width: 768px) {
+    #input-row {
+        flex-direction: column;
+    }
+
+    #msg, #response-props {
+        width: 100%;
+    }
+
+    #button-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
