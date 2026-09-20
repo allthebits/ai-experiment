@@ -104,6 +104,11 @@ body {
     margin-top: 15px;
 }
 
+#model-select {
+    width: fit-content;
+    min-width: max-content; /* ensures it never clips text */
+}
+
 
 /* ================================
    ROW 3 — MARKDOWN OUTPUT (EXPANDS)
