@@ -1,0 +1,146 @@
+###############################################
+# Python Environments & Caches
+###############################################
+
+# Virtual environment
+.venv/
+
+# Python cache directories & bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# pytest
+.cache/
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+
+###############################################
+# Project-Level Directories to Ignore
+###############################################
+
+# Root-level directories
+/cache/
+/models/
+/node_modules/
+
+
+###############################################
+# Editor / Tooling
+###############################################
+
+# VS Code
+.vscode/
+
+# Cline / MCP
+.clinerules/
+.cline/
+.cline-cache/
+.mcp/
+mcp_logs/
+
+
+###############################################
+# Build / Packaging Artifacts
+###############################################
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Node build outputs
+.next/
+out/
+.vite/
+coverage/   # (JS test coverage; Python coverage handled above)
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+###############################################
+# Machine Learning Artifacts
+###############################################
+
+# Model checkpoints & data blobs
+*.ckpt
+*.pth
+*.pt
+*.h5
+*.onnx
+*.tflite
+*.npz
+*.npy
+
+# TensorBoard logs
+logs/
+
+
+###############################################
+# Environment & Secrets
+###############################################
+
+# Environment files
+.env
+.env.*
+
+# Secrets / keys
+*.pem
+*.key
+*.crt
+*.pub
+secrets.json
+
+
+###############################################
+# OS Junk Files
+###############################################
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+
+###############################################
+# Editor Backup / Swap Files
+###############################################
+
+*~
+*.swp
+*.swo
+
+
+###############################################
+# Docker / Runtime
+###############################################
+
+*.pid
+*.seed
+*.pid.lock
+
+
+###############################################
+# Git Metadata (rarely needed, but included)
+###############################################
+
+.gitignore.lock
+.gitmodules
+.git-credentials
