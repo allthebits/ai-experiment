@@ -43,51 +43,114 @@ class ChatController {
         sendButton.textContent = "Send";
     }
 
-    async send() {
-        this.disableSendButton();
-        
-        const message = document.getElementById("msg").value.trim(); // Trim whitespace
-        const maxLength = 2048; // Define a maximum character length for the message
+  async send() {
+      this.disableSendButton();
+      
+      const message = document.getElementById("msg").value.trim();
+      const maxLength = 2048;
 
-        // Validate input
-        if (message === "") {
-            alert("Please enter a message.");
-            this.enableSendButton();
-            return;
-        }
-        
-        if (message.length > maxLength) {
-            alert(`Message exceeds the maximum length of ${maxLength} characters.`);
-            this.enableSendButton();
-            return;
-        }
+      if (message === "") {
+          alert("Please enter a message.");
+          this.enableSendButton();
+          return;
+      }
+      
+      if (message.length > maxLength) {
+          alert(`Message exceeds the maximum length of ${maxLength} characters.`);
+          this.enableSendButton();
+          return;
+      }
 
-        const ai_model = this.getModelName();
+      const ai_model = this.getModelName();
 
-        try {
-            const response = await fetch(this.chatEndpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: ai_model,
-                    messages: [
-                        { role: "user", content: message }
-                    ]
-                })
-            });
+      try {
+          const response = await fetch(this.chatEndpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  model: ai_model,
+                  messages: [
+                      { role: "user", content: message }
+                  ]
+              })
+          });
 
-            if (!response.ok) {
-                throw new Error("Failed to send message");
-            }
+          if (!response.ok) {
+              throw new Error("Failed to send message");
+          }
 
-            const data = await response.json();
-            this.handleResponse(data);
-        } catch (err) {
-            document.getElementById("response-props").value = `Error: ${err.message || err.toString()}`;
-            this.handleResponse(null, err);
-            this.enableSendButton();
-        }
-    }
+          // Dynamically detect streaming vs non-streaming
+          await this.handleDynamicResponse(response);
+
+      } catch (err) {
+          document.getElementById("response-props").value = `Error: ${err.message || err.toString()}`;
+          this.handleResponse(null, err);
+          this.enableSendButton();
+      }
+  }
+
+  async handleDynamicResponse(response) {
+      const outMarkdownContainer = document.getElementById("out-markdown");
+      const responsePropsTextarea = document.getElementById("response-props");
+
+      // Try non-streaming first
+      try {
+          const data = await response.clone().json();
+          this.handleResponse(data);
+          this.enableSendButton();
+          return;
+      } catch (e) {}
+
+      // STREAMING MODE
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalObject = null;
+      let fullContent = "";   // <-- ACCUMULATE CONTENT HERE
+
+      while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          const parts = buffer.split(/(?<=})\s*(?={)/g);
+
+          for (let i = 0; i < parts.length - 1; i++) {
+              try {
+                  const obj = JSON.parse(parts[i]);
+                  finalObject = obj;
+
+                  // Extract streaming content tokens
+                  if (obj.message && obj.message.content) {
+                      fullContent += obj.message.content;
+                  }
+
+              } catch (err) {
+                  console.warn("Streaming chunk parse error:", err);
+              }
+          }
+
+          buffer = parts[parts.length - 1];
+      }
+
+      // Try parsing final buffer
+      try {
+          const obj = JSON.parse(buffer);
+          finalObject = obj;
+      } catch (e) {}
+
+      // Inject the assembled content into the final object
+      if (finalObject) {
+          if (!finalObject.message) finalObject.message = {};
+          finalObject.message.content = fullContent;
+          this.handleResponse(finalObject);
+      } else {
+          this.handleResponse(null, new Error("Failed to parse streaming response"));
+      }
+
+      this.enableSendButton();
+  }
 
     handleResponse(data, error) {
         const outMarkdownContainer = document.getElementById("out-markdown");
@@ -150,13 +213,17 @@ class ChatController {
 const hostname1 = "localhost:3000";
 const hostname2 = "192.168.81.119:8888";
 
+// Dynamically choose based on browser URL
+const currentURL = window.location.href;
+
+const hostname = currentURL.includes("/Ubuntu/home/mjkel/") ? hostname1 : hostname2;
+
 const chatController = new ChatController(
     "/tags",
     "/chat",
-    hostname1,
+    hostname,
     false
 );
-
 
 // Fetch models data when the page loads
 chatController.fetchModelsData();
