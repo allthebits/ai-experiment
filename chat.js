@@ -147,10 +147,13 @@ class ChatController {
 }
 
 // Initialize the ChatController with configurable endpoints
+const hostname1 = "localhost:3000";
+const hostname2 = "192.168.81.119:8888";
+
 const chatController = new ChatController(
     "/tags",
     "/chat",
-    "localhost:3000",
+    hostname1,
     false
 );
 
