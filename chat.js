@@ -2,9 +2,12 @@
 const DEFAULT_MODEL_NAME = "llama3";
 
 class ChatController {
-    constructor(modelEndpoint, chatEndpoint) {
-        this.modelEndpoint = modelEndpoint;
-        this.chatEndpoint = chatEndpoint;
+    constructor(modelEndpoint, chatEndpoint, hostname, https = false) {
+        const protocol = https ? "https://" : "http://";
+
+        this.modelEndpoint = protocol + hostname + modelEndpoint;
+        this.chatEndpoint  = protocol + hostname + chatEndpoint;
+
         this.ai_models = [];
     }
 
@@ -145,9 +148,12 @@ class ChatController {
 
 // Initialize the ChatController with configurable endpoints
 const chatController = new ChatController(
-    "http://localhost:3000/tags",
-    "http://localhost:3000/chat"
+    "/tags",
+    "/chat",
+    "localhost:3000",
+    false
 );
+
 
 // Fetch models data when the page loads
 chatController.fetchModelsData();
