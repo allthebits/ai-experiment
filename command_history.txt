@@ -1,0 +1,11 @@
+  252  2026-09-10 22:02:20 pip install playwright
+  253  2026-09-10 22:02:35 playwright install chromium
+
+  311  2026-09-20 13:29:32 ps aux | grep server-filesystem
+  324  2026-09-20 13:52:57 npm install -g @microsoft/playwright-mcp 
+
+  335  2026-09-20 15:00:05 npx -y @modelcontextprotocol/server-filesystem   /home/mjkel/Development/Projects/ai_experiment 
+  340  2026-09-20 15:36:42 npm install @modelcontextprotocol/server-filesystem 
+  343  2026-09-20 15:41:16 npx -y @modelcontextprotocol/server-filesystem /home/mjkel/Development/Projects/ai_experiment
+  344  2026-09-20 15:41:33 node ./node_modules/@modelcontextprotocol/server-filesystem/dist/index.js /home/mjkel/Development/Projects/ai_experiment
+

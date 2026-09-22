@@ -41,6 +41,9 @@ htmlcov/
 # Editor / Tooling
 ###############################################
 
+# Continue
+.continue
+
 # VS Code
 .vscode/
 
