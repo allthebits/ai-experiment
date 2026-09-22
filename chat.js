@@ -27,7 +27,24 @@ class ChatController {
             this.populateAI_Models();
         } catch (error) {
             console.error("Error fetching models data:", error);
-            this.displayError("Failed to fetch model data. Please try again later.");
+
+            // Extract the real browser network error if available
+            let detailedMessage = error.message;
+
+            // Chrome exposes the real network error in error.cause
+            if (error.cause && error.cause.message) {
+                detailedMessage = error.cause.message;
+            }
+
+            // Some browsers expose it in error.toString()
+            const errorString = error.toString();
+            if (errorString && !errorString.includes("TypeError")) {
+                detailedMessage = errorString;
+            }
+            const failedURL = this.modelEndpoint;
+            detailedMessage += `</br>Network error while fetching ${failedURL}. The server may be offline, unreachable, or refusing connections.`;
+
+            this.displayError(`Failed to fetch model data. Network error: ${detailedMessage}`);
         }
     }
 
@@ -204,8 +221,11 @@ class ChatController {
     }
 
     displayError(message) {
-        const errorContainer = document.getElementById("error-container");
-        errorContainer.innerHTML = `<p style="color: red;">${message}</p>`;
+        // response-props
+        // out-markdown
+        const errorContainer = document.getElementById("out-markdown");
+        const messageContent = `<p style="color: red;">${message}</p>`;
+        errorContainer.innerHTML = DOMPurify.sanitize(marked.parse(messageContent));
     }
 }
 
@@ -216,7 +236,22 @@ const hostname2 = "192.168.81.119:8888";
 // Dynamically choose based on browser URL
 const currentURL = window.location.href;
 
-const hostname = currentURL.includes("/Ubuntu/home/mjkel/") ? hostname1 : hostname2;
+const isLocalUbuntu = currentURL.includes("/Ubuntu/home/mjkel/");
+
+// Determine browser protocol + host + port
+const browserProtocol = window.location.protocol;   // "http:" or "https:"
+const browserHost = window.location.hostname;       // e.g., "192.168.81.119"
+const browserPort = window.location.port;           // e.g., "8888" or ""
+const isHttps = browserProtocol === "https:";
+
+// Build hostname from browser if not local Ubuntu
+let dynamicHostname = browserHost;
+if (browserPort) {
+    dynamicHostname += `:${browserPort}`;
+}
+
+// Final hostname selection
+const hostname = isLocalUbuntu ? hostname1 : dynamicHostname;
 
 const chatController = new ChatController(
     "/tags",
