@@ -74,7 +74,7 @@ This will either built to your local or remote Docker server
 
 After building the image, you can run a container using the following command. Again, if it's remote, set the remote Docker context.
 
-```docker run -d -p 8888:80 -e OLLAMA_BACKEND=http://192.168.81.119:11434  --name ollama-chat ollama-chat-app```
+```docker run -d -p 8888:80 -e OLLAMA_BACKEND=http://192.168.0.124:11434  --name ollama-chat ollama-chat-app```
 
 - **`-p 8888:80`**: Forward system port 8888 to Docker image port 80
 - **`-e OLLAMA_BACKEND=http://192.168.0.124:11434`**: Set Apache Environment variable OLLAMA_BACKEND to be used in the Apache config
