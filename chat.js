@@ -1,6 +1,12 @@
 // Scoped variables
 const DEFAULT_MODEL_NAME = "llama3";
 
+// Debug: Log the default endpoint configuration
+console.log("[DEBUG] Chat app initialized with default:", {
+    modelEndpoint: "http://" + "docker-server.kelleher.net" + "/11434/api/tags",
+    chatEndpoint: "http://" + "docker-server.kelleher.net" + "/11434/api/chat"
+});
+
 class ChatController {
     constructor(modelEndpoint, chatEndpoint, hostname, https = false) {
         const protocol = https ? "https://" : "http://";
@@ -13,10 +19,29 @@ class ChatController {
 
     async fetchModelsData() {
         try {
+            console.log("[DEBUG] Starting fetchModelsData for endpoint:", this.modelEndpoint);
+
+            // Debug: Log the request being made
+            console.log("[DEBUG] Request URL:", this.modelEndpoint);
+            console.log("[DEBUG] Request method: GET");
+            
+            // Try to detect what URL is actually being used (e.g., from data URI)
+            const dataUri = document.querySelector('html[data-model-endpoint]');
+            if (dataUri) {
+                console.log("[DEBUG] Checking for html[data-model-endpoint]:", dataUri.getAttribute('data-model-endpoint'));
+            }
+
             const response = await fetch(this.modelEndpoint);
+            
+            // Debug: Show HTTP status code
+            console.log("[DEBUG] Response received with status:", response.status);
+            console.log("[DEBUG] Response headers:", Object.keys(response.headers));
+            
             if (!response.ok) {
+                console.warn("[DEBUG] Response is not OK - status", response.status, "message", response.statusText);
                 throw new Error("Failed to fetch models data");
             }
+
             const data = await response.json();
             
             this.ai_models = data.models.map(model => {
@@ -26,13 +51,17 @@ class ChatController {
 
             this.populateAI_Models();
         } catch (error) {
-            console.error("Error fetching models data:", error);
+            console.error("[DEBUG] ERROR fetching models data - caught:", error.name);
+            console.error("[DEBUG] Error message:", error.message);
+            console.error("[DEBUG] Full error object:", JSON.stringify(error, null, 2));
 
             // Extract the real browser network error if available
             let detailedMessage = error.message;
-
+            
             // Chrome exposes the real network error in error.cause
+            console.log("[DEBUG] Checking for error.cause...");
             if (error.cause && error.cause.message) {
+                console.log("[DEBUG] Error.cause found:", error.cause.message);
                 detailedMessage = error.cause.message;
             }
 
@@ -41,8 +70,14 @@ class ChatController {
             if (errorString && !errorString.includes("TypeError")) {
                 detailedMessage = errorString;
             }
-            const failedURL = this.modelEndpoint;
-            detailedMessage += `</br>Network error while fetching ${failedURL}. The server may be offline, unreachable, or refusing connections.`;
+            
+            console.log("[DEBUG] Failed URL used:", this.modelEndpoint);
+            console.log("[DEBUG] Error.cause details:", JSON.stringify({
+                originalError: error.message,
+                cause: error.cause ? error.cause.message : 'N/A',
+                toString: error.toString()
+            }, null, 2));
+
 
             this.displayError(`Failed to fetch model data. Network error: ${detailedMessage}`);
         }
@@ -80,7 +115,21 @@ class ChatController {
 
       const ai_model = this.getModelName();
 
+      console.log("[DEBUG] Sending chat request...");
+      console.log("[DEBUG] Endpoint:", this.chatEndpoint);
+      console.log("[DEBUG] Model:", ai_model);
+      console.log("[DEBUG] Message length:", message.length);
+
       try {
+          // Debug: Log the payload being sent
+          const payload = JSON.stringify({
+              model: ai_model,
+              messages: [
+                  { role: "user", content: message }
+              ]
+          });
+          console.log("[DEBUG] Request body:", payload);
+          
           const response = await fetch(this.chatEndpoint, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -99,11 +148,14 @@ class ChatController {
           // Dynamically detect streaming vs non-streaming
           await this.handleDynamicResponse(response);
 
-      } catch (err) {
-          document.getElementById("response-props").value = `Error: ${err.message || err.toString()}`;
-          this.handleResponse(null, err);
-          this.enableSendButton();
-      }
+    } catch (err) {
+        console.error("[DEBUG] ERROR sending chat request:", err);
+        console.error("[DEBUG] Error cause:", err.cause ? err.cause.message : 'N/A');
+        
+        document.getElementById("response-props").value = `Error: ${err.message || err.toString()}`;
+        this.handleResponse(null, err);
+        this.enableSendButton();
+    }
   }
 
   async handleDynamicResponse(response) {

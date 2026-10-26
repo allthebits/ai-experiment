@@ -87,7 +87,7 @@ After building the image, you can run a container using the following command. A
 
 #### 1. Add Proxy on Windows 11 Host from Windows 11 to the Docker Container
 
-```netsh interface portproxy add v4tov4  listenaddress=192.168.0.124 listenport=11434 connectaddress=192.168.81.119 connectport=11434````
+```netsh interface portproxy add v4tov4  listenaddress=192.168.0.124 listenport=11434 connectaddress=192.168.81.119 connectport=11434```
 
 Check to see if it was added:
 
@@ -96,6 +96,19 @@ Check to see if it was added:
 To Remove this Proxy:
 
 ```netsh interface portproxy delete v4tov4 listenaddress=192.168.0.124 listenport=11434```
+
+This will work until the IP Address changes. Then you will have Network connectivity issues again.  Bind to 0.0.0.0 to handle IP changes dynamically
+
+```bash
+netsh interface portproxy delete v4tov4 listenaddress=192.168.0.124 listenport=11434
+netsh interface portproxy add v4tov4  listenaddress=0.0.0.0 listenport=11434 connectaddress=192.168.81.119 connectport=11434
+```
+
+To get your configured IP address:
+
+```bash
+Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.ValidLifetime -ne "0"} | Select-Object InterfaceAlias,IPAddress
+```
 
 #### 2. Allow the port through the Windows Firewall
 
